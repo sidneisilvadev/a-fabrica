@@ -1,0 +1,37 @@
+# Dependências
+node_modules/
+dist/
+build/
+
+# Configurações Sensíveis (MUITO IMPORTANTE)
+.env
+.env.local
+.env.*.local
+
+# Banco de Dados e Persistência
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Arquivos de Produção e Armazém
+warehouse/
+production/
+uploads/
+docs/*.md
+!docs/README.md
+*.bat
+
+# Logs e Temporários
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

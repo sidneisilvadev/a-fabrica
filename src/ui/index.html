@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Fábrica | Dashboard Industrial</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --panel: rgba(20, 20, 25, 0.7);
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.3);
+            --text: #e0e0e6;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .agent-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-name { font-weight: 600; font-size: 0.9rem; }
+        .agent-role { font-size: 0.7rem; color: #888; }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            background: radial-gradient(circle at top right, #1a1a2e, transparent);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-new {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transition: transform 0.2s;
+        }
+
+        .btn-new:hover { transform: scale(1.05); }
+
+        .production-line {
+            flex: 1;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .log-entry {
+            border-left: 2px solid var(--accent);
+            padding-left: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-agent { font-weight: 600; font-size: 0.8rem; color: var(--accent); }
+        .log-msg { font-size: 0.9rem; margin-top: 5px; line-height: 1.5; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #15151a;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        input, textarea {
+            width: 100%;
+            background: #0a0a0c;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Onboarding Wizard -->
+    <div id="onboarding" class="modal" style="display: flex; z-index: 1000;">
+        <div class="modal-content" style="width: 500px;">
+            <div id="step-1">
+                <div class="logo" style="margin-bottom: 2rem;">
+                    <i data-lucide="factory"></i> A FÁBRICA
+                </div>
+                <h2 style="margin-bottom: 0.5rem;">Ficha da Empresa</h2>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 1.5rem;">Vamos registrar sua nova unidade de produção.</p>
+                <label class="section-title">Nome da Fábrica</label>
+                <input type="text" id="f-name" placeholder="Ex: Silicon Foundry">
+                <label class="section-title">Indústria / Setor</label>
+                <input type="text" id="f-industry" placeholder="Ex: Desenvolvimento Web">
+                <button class="btn-new" style="width: 100%; margin-top: 1rem;" onclick="nextStep(2)">Próximo Passo</button>
+            </div>
+
+            <div id="step-2" style="display: none;">
+                <h2 style="margin-bottom: 0.5rem;">A Alma (Configuração)</h2>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 1.5rem;">Configure as ferramentas que darão vida aos agentes.</p>
+                <label class="section-title">OpenAI / Local API Key</label>
+                <input type="password" id="f-key" placeholder="sk-...">
+                <label class="section-title">Base URL (Opcional)</label>
+                <input type="text" id="f-url" placeholder="http://localhost:7860/v1">
+                <label class="section-title">Modelo Principal</label>
+                <input type="text" id="f-model" value="gpt-4o">
+                <button class="btn-new" style="width: 100%; margin-top: 1rem;" onclick="nextStep(3)">Próximo Passo</button>
+            </div>
+
+            <div id="step-3" style="display: none;">
+                <h2 style="margin-bottom: 0.5rem;">A Missão (Visão & SEO)</h2>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 1.5rem;">Descreva o propósito da empresa e como ela deve ser vista.</p>
+                <label class="section-title">Missão do CEO</label>
+                <textarea id="f-mission" placeholder="Ex: Ser a maior exportadora de software ético do país..." rows="3"></textarea>
+                <label class="section-title">Palavras-Chave (SEO)</label>
+                <input type="text" id="f-seo" placeholder="Ex: inovação, agilidade, qualidade">
+                <button class="btn-new" style="width: 100%; margin-top: 1rem;" onclick="finishSetup()">Lançar Fábrica</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (Initially Hidden) -->
+    <div id="dashboard" style="display: none; width: 100vw; height: 100vh; display: none;">
+        <div class="sidebar">
+            <div class="logo">
+                <i data-lucide="factory"></i>
+                A FÁBRICA
+            </div>
+            <div>
+                <p class="section-title">Colaboradores Contratados</p>
+                <div id="agents-list"></div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <div>
+                    <h1 id="project-title">Linha de Produção Ociosa</h1>
+                    <p id="project-desc" style="color: #888;">Nenhum projeto em andamento.</p>
+                </div>
+                <button class="btn-new" onclick="showModal()">Nova Ideia</button>
+            </div>
+
+            <div class="production-line" id="logs">
+                <div style="color: #444; text-align: center; margin-top: 2rem;">Aguardando entrada de material bruto...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1rem;">Lançar Nova Ideia</h2>
+            <input type="text" id="m-name" placeholder="Nome do Projeto">
+            <textarea id="m-desc" placeholder="Descreva sua ideia..." rows="4"></textarea>
+            <button class="btn-new" style="width: 100%;" onclick="startProject()">Iniciar Produção</button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API = 'http://localhost:3001';
+
+        function nextStep(n) {
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-3').style.display = 'none';
+            document.getElementById(`step-${n}`).style.display = 'block';
+        }
+
+        async function finishSetup() {
+            const data = {
+                factoryName: document.getElementById('f-name').value,
+                industry: document.getElementById('f-industry').value,
+                apiKey: document.getElementById('f-key').value,
+                baseUrl: document.getElementById('f-url').value,
+                model: document.getElementById('f-model').value
+            };
+
+            await fetch(`${API}/setup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            document.getElementById('onboarding').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+        }
+
+        function showModal() { document.getElementById('modal').style.display = 'flex'; }
+
+        async function startProject() {
+            const name = document.getElementById('m-name').value;
+            const description = document.getElementById('m-desc').value;
+            
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('project-title').innerText = name;
+            document.getElementById('project-desc').innerText = description;
+            document.getElementById('logs').innerHTML = '<div style="color: var(--accent);">RH d\'A Fábrica analisando e contratando...</div>';
+
+            const res = await fetch(`${API}/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+            
+            const { projectId } = await res.json();
+            pollLogs(projectId);
+            loadAgents();
+        }
+
+        async function loadAgents() {
+            const res = await fetch(`${API}/agents`);
+            const agents = await res.json();
+            const list = document.getElementById('agents-list');
+            list.innerHTML = agents.map(a => `
+                <div class="agent-card">
+                    <div class="agent-name">${a.name}</div>
+                    <div class="agent-role">${a.role}</div>
+                </div>
+            `).join('');
+        }
+
+        let lastLogId = 0;
+        function pollLogs(projectId) {
+            setInterval(async () => {
+                const res = await fetch(`${API}/logs/${projectId}`);
+                const logs = await res.json();
+                const container = document.getElementById('logs');
+                
+                logs.slice(lastLogId).forEach(log => {
+                    const el = document.createElement('div');
+                    el.className = 'log-entry';
+                    el.innerHTML = `<div class="log-agent">Agente #${log.agent_id}</div><div class="log-msg">${log.message}</div>`;
+                    container.appendChild(el);
+                    container.scrollTop = container.scrollHeight;
+                });
+                lastLogId = logs.length;
+            }, 2000);
+        }
+
+        // Check if setup already done
+        fetch(`${API}/factory`).then(res => res.json()).then(factories => {
+            if (factories.length > 0) {
+                document.getElementById('onboarding').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'flex';
+                loadAgents();
+            }
+        });
+    </script>
+</body>
+</html>
